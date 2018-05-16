@@ -1,0 +1,46 @@
+#include <AccelStepper.h>
+
+
+// Define a stepper motor 1 for arduino 
+// direction Digital 9 (CW), pulses Digital 8 (CLK)
+AccelStepper stepper(1, 8, 9);
+
+char serialData;
+String sMoveTo;
+int iMoveTo;
+int AzSpeed;
+float AzCal = 11.18889;//4028 step per revolution.
+int SpeedMin = 25;
+int SpeedMax = 500;
+float SpeedFactor = 1.05;
+
+void setup()
+{  
+   Serial.begin(9600);           // set up Serial library at 9600 bps
+   Serial.println("Stepper test!");
+  
+  // Change these to suit your stepper if you want
+  stepper.setMaxSpeed(500);//1100    
+  stepper.setAcceleration(1000);//1100
+  AzSpeed = 50;
+}
+
+void loop()
+{
+    while (Serial.available()) {
+      delay(10);
+      serialData = Serial.read();
+      sMoveTo += serialData;
+    }
+    if (sMoveTo.length() != 0){
+      iMoveTo = sMoveTo.toInt();
+      sMoveTo = "";
+      stepper.moveTo(AzCal * iMoveTo);
+      //Serial.println(iMoveTo);
+    }
+  
+    if (stepper.distanceToGo() != 0){
+      stepper.run();
+    }
+
+}
